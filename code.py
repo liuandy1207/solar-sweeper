@@ -26,7 +26,7 @@ step_y.value = False
 dir_x.value = True
 dir_y.value = True
 
-STEP_DELAY = 0.001
+STEP_DELAY = 0.002
 STEPS_PER_KEY = 200
 
 def do_steps(step_pin, n):
@@ -45,13 +45,29 @@ while True:
     key = read_key()
     if key == 'd':
         dir_x.value = True
+        time.sleep(0.005)
         do_steps(step_x, STEPS_PER_KEY)
+        while supervisor.runtime.serial_bytes_available:
+            sys.stdin.read(1)
+        time.sleep(0.05)  # brief cooldown before next move
     elif key == 'a':
         dir_x.value = False
+        time.sleep(0.005)
         do_steps(step_x, STEPS_PER_KEY)
+        while supervisor.runtime.serial_bytes_available:
+            sys.stdin.read(1)
+        time.sleep(0.05)  # brief cooldown before next move
     elif key == 'w':
         dir_y.value = True
+        time.sleep(0.005)
         do_steps(step_y, STEPS_PER_KEY)
+        while supervisor.runtime.serial_bytes_available:
+            sys.stdin.read(1)
+        time.sleep(0.05)  # brief cooldown before next move
     elif key == 's':
         dir_y.value = False
+        time.sleep(0.005)
         do_steps(step_y, STEPS_PER_KEY)
+        while supervisor.runtime.serial_bytes_available:
+            sys.stdin.read(1)
+        time.sleep(0.05)  # brief cooldown before next move
