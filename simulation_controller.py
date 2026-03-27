@@ -88,7 +88,7 @@ def max_distance(total_axis_dist: float, r: float, N: int = 200) -> float:
     return max
 
 #NOTE: Assuming the 200 steps/rev for the Mini Nema stepper, need to fix total_axis_dist by measurement later
-hardware_X_max, hardware_Y_max = max_distance(r=2, N=200, total_axis_dist=500.0), max_distance(r=2, N=200, total_axis_dist=1000.0)
+hardware_X_max, hardware_Y_max = max_distance(r=2, N=200, total_axis_dist=500.0), max_distance(r=2, N=200, total_axis_dist=750.0)
 
 def clamp(val: float, low: float, high: float) -> float:
     return max(low, min(val, high))
