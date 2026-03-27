@@ -27,7 +27,7 @@ dir_x.value = True
 dir_y.value = True
 
 STEP_DELAY = 0.001
-STEPS_PER_KEY = 5
+STEPS_PER_KEY = 200
 
 def do_steps(step_pin, n):
     for _ in range(n):
