@@ -33,6 +33,7 @@ def send_line(text: str):
     global ser
     if ser:
         ser.write((text + "\n").encode("utf-8"))
+    print(">", text)
 
 '''
 Pygame Simulation Setup
@@ -87,16 +88,16 @@ def max_distance(total_axis_dist: float, r: float, N: int = 200) -> float:
     return max
 
 #NOTE: Assuming the 200 steps/rev for the Mini Nema stepper, need to fix total_axis_dist by measurement later
-hardware_X_max, hardware_Y_max = max_distance(r=2, N=200, total_axis_dist=None), max_distance(r=2, N=200, total_axis_dist=None)
+hardware_X_max, hardware_Y_max = max_distance(r=2, N=200, total_axis_dist=500.0), max_distance(r=2, N=200, total_axis_dist=1000.0)
+
+def clamp(val: float, low: float, high: float) -> float:
+    return max(low, min(val, high))
+
 
 def panel_to_hw(px: float, py: float) -> Tuple[int, int]:
     """
-    Convert panel-relative pixel position to hardware coordinates.
-    Input px, py are carriage CENTER positions inside the panel.
-
-    :param px: X pixel position of carriage center
-    :param py: Y pixel position of carriage center
-    :return: (hw_x, hw_y) corresponding hardware coordinates
+    Convert carriage CENTER pixel position into hardware coordinates (steps).
+    This is for one X axis and one Y axis.
     """
     x_min = panel_x + car_w / 2
     x_max = panel_x + panel_w - car_w / 2
@@ -106,29 +107,29 @@ def panel_to_hw(px: float, py: float) -> Tuple[int, int]:
     x_norm = (px - x_min) / (x_max - x_min)
     y_norm = (py - y_min) / (y_max - y_min)
 
-    x_norm = max(0.0, min(1.0, x_norm))
-    y_norm = max(0.0, min(1.0, y_norm))
+    x_norm = clamp(x_norm, 0.0, 1.0)
+    y_norm = clamp(y_norm, 0.0, 1.0)
 
     hw_x = int(round(x_norm * hardware_X_max))
     hw_y = int(round(y_norm * hardware_Y_max))
     return hw_x, hw_y
 
+
 def hw_to_panel(hw_x: float, hw_y: float) -> Tuple[float, float]:
     """
-    Function for reverse mapping
-    - NOTE: might not be needed but just adding here first
-
-    :param hw_x: Hardware X coordinate
-    :param hw_y: Hardware Y coordinate
-    :return: (px, py) corresponding pixel coordinates on the panel
+    Reverse map hardware coordinates (steps) to panel center position.
+    Useful for visualization.
     """
     x_min = panel_x + car_w / 2
     x_max = panel_x + panel_w - car_w / 2
     y_min = panel_y + car_h / 2
     y_max = panel_y + panel_h - car_h / 2
 
-    x_norm = hw_x / hardware_X_max if hardware_X_max > 0 else 0
-    y_norm = hw_y / hardware_Y_max if hardware_Y_max > 0 else 0
+    x_norm = (hw_x / hardware_X_max) if hardware_X_max > 0 else 0.0
+    y_norm = (hw_y / hardware_Y_max) if hardware_Y_max > 0 else 0.0
+
+    x_norm = clamp(x_norm, 0.0, 1.0)
+    y_norm = clamp(y_norm, 0.0, 1.0)
 
     px = x_min + x_norm * (x_max - x_min)
     py = y_min + y_norm * (y_max - y_min)
@@ -181,6 +182,9 @@ while running:
     else:
         car_center_x = target_x
         car_center_y = target_y
+
+    car_x = car_center_x - car_w / 2
+    car_y = car_center_y - car_h / 2
 
     # draw
     screen.fill((240, 240, 240))

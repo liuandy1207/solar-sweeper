@@ -17,26 +17,15 @@ def max_distance(total_axis_dist: float, r: float, N: int = 200) -> float:
 '''
 Pin setup and initialize initial states
 '''
-# axes (two stepper drivers)
-dir_x1 = digitalio.DigitalInOut(board.GP2)
-dir_x1.direction = digitalio.Direction.OUTPUT
+dir_x = digitalio.DigitalInOut(board.GP2)
+dir_x.direction = digitalio.Direction.OUTPUT
 
-step_x1 = digitalio.DigitalInOut(board.GP3)
-step_x1.direction = digitalio.Direction.OUTPUT
+step_x = digitalio.DigitalInOut(board.GP3)
+step_x.direction = digitalio.Direction.OUTPUT
 
-en_x1 = digitalio.DigitalInOut(board.GP4)
-en_x1.direction = digitalio.Direction.OUTPUT
+en_x = digitalio.DigitalInOut(board.GP4)
+en_x.direction = digitalio.Direction.OUTPUT
 
-dir_x2 = digitalio.DigitalInOut(board.GP10)
-dir_x2.direction = digitalio.Direction.OUTPUT
-
-step_x2 = digitalio.DigitalInOut(board.GP11)
-step_x2.direction = digitalio.Direction.OUTPUT
-
-en_x2 = digitalio.DigitalInOut(board.GP12)
-en_x2.direction = digitalio.Direction.OUTPUT
-
-# Y axis
 dir_y = digitalio.DigitalInOut(board.GP6)
 dir_y.direction = digitalio.Direction.OUTPUT
 
@@ -46,17 +35,14 @@ step_y.direction = digitalio.Direction.OUTPUT
 en_y = digitalio.DigitalInOut(board.GP8)
 en_y.direction = digitalio.Direction.OUTPUT
 
-# Active low:
-en_x1.value = False
-en_x2.value = False
-en_y.value = False
+# Active-low enable
+en_x.value = True
+en_y.value = True
 
-step_x1.value = False
-step_x2.value = False
+step_x.value = False
 step_y.value = False
 
-dir_x1.value = False
-dir_x2.value = False
+dir_x.value = False
 dir_y.value = False
 
 '''
@@ -67,9 +53,9 @@ IDLE_DELAY = 0.002
 
 # NOTE: set these after calibration
 X_MIN = 0
-X_MAX = max_distance(r=2, N=200, total_axis_dist=None)
+X_MAX = max_distance(r=2, N=200, total_axis_dist=500.0)
 Y_MIN = 0
-Y_MAX = max_distance(r=2, N=200, total_axis_dist=None)
+Y_MAX = max_distance(r=2, N=200, total_axis_dist=1000.0)
 
 # Current and target position in step pulses
 # X1 and X2 are treated as one logical X axis
@@ -80,8 +66,7 @@ target_y = 0
 
 # Direction inversion flags
 # Often one X motor must be inverted if mounted mirrored
-INVERT_X1_DIR = False
-INVERT_X2_DIR = True
+INVERT_X_DIR = False
 INVERT_Y_DIR = False
 
 '''
@@ -103,16 +88,14 @@ def enable_motors():
     '''
     Enable all motors (active low)
     '''
-    en_x1.value = False
-    en_x2.value = False
+    en_x.value = False
     en_y.value = False
 
 def disable_motors():
     '''
     Disable all motors (active low)
     '''
-    en_x1.value = True
-    en_x2.value = True
+    en_x.value = True
     en_y.value = True
 
 def set_dir_x(forward: bool):
@@ -122,15 +105,7 @@ def set_dir_x(forward: bool):
 
     :param forward: True for positive direction, False for negative direction
     '''
-    val_x1 = forward
-    if INVERT_X1_DIR:
-        val_x1 = not val_x1
-    dir_x1.value = val_x1
-
-    val_x2 = forward
-    if INVERT_X2_DIR:
-        val_x2 = not val_x2
-    dir_x2.value = val_x2
+    dir_x.value = (not forward) if INVERT_X_DIR else forward
 
 
 def set_dir_y(forward: bool):
@@ -139,10 +114,7 @@ def set_dir_y(forward: bool):
 
     :param forward: True for positive direction, False for negative direction
     '''
-    val = forward
-    if INVERT_Y_DIR:
-        val = not val
-    dir_y.value = val
+    dir_y.value = (not forward) if INVERT_Y_DIR else forward
 
 
 def pulse_step(step_pin: digitalio.DigitalInOut):
@@ -157,37 +129,37 @@ def pulse_step(step_pin: digitalio.DigitalInOut):
     time.sleep(STEP_DELAY)
 
 
-def pulse_step_pair(
-    step_pin_a: digitalio.DigitalInOut,
-    step_pin_b: digitalio.DigitalInOut
-):
-    '''
-    Pulse two step pins together for synchronized motion
+# def pulse_step_pair(
+#     step_pin_a: digitalio.DigitalInOut,
+#     step_pin_b: digitalio.DigitalInOut
+# ):
+#     '''
+#     Pulse two step pins together for synchronized motion
 
-    :param step_pin_a: The first step pin to pulse
-    :param step_pin_b: The second step pin to pulse
-    '''
-    step_pin_a.value = True
-    step_pin_b.value = True
-    time.sleep(STEP_DELAY)
-    step_pin_a.value = False
-    step_pin_b.value = False
-    time.sleep(STEP_DELAY)
+#     :param step_pin_a: The first step pin to pulse
+#     :param step_pin_b: The second step pin to pulse
+#     '''
+#     step_pin_a.value = True
+#     step_pin_b.value = True
+#     time.sleep(STEP_DELAY)
+#     step_pin_a.value = False
+#     step_pin_b.value = False
+#     time.sleep(STEP_DELAY)
 
 
-def move_x_steps(num_steps: int, forward: bool) -> None:
-    '''
-    Move the X axis a specific number of steps in a given direction.
-    X1 and X2 move together.
-    '''
-    if num_steps <= 0:
-        return
+# def move_x_steps(num_steps: int, forward: bool) -> None:
+#     '''
+#     Move the X axis a specific number of steps in a given direction.
+#     X1 and X2 move together.
+#     '''
+#     if num_steps <= 0:
+#         return
 
-    enable_motors()
-    set_dir_x(forward)
+#     enable_motors()
+#     set_dir_x(forward)
 
-    for _ in range(num_steps):
-        pulse_step_pair(step_x1, step_x2)
+#     for _ in range(num_steps):
+#         pulse_step_pair(step_x1, step_x2)
 
 
 def move_y_steps(num_steps: int, forward: bool) -> None:
@@ -204,38 +176,38 @@ def move_y_steps(num_steps: int, forward: bool) -> None:
         pulse_step(step_y)
 
 
-def move_x(new_target_x: int) -> None:
-    '''
-    Move X axis to a specific target position (in steps),
-    updating current_x accordingly
-    '''
-    global current_x
+# def move_x(new_target_x: int) -> None:
+#     '''
+#     Move X axis to a specific target position (in steps),
+#     updating current_x accordingly
+#     '''
+#     global current_x
 
-    new_target_x = clamp(new_target_x, X_MIN, X_MAX)
+#     new_target_x = clamp(new_target_x, X_MIN, X_MAX)
 
-    if new_target_x > current_x:
-        move_x_steps(new_target_x - current_x, True)
-    elif new_target_x < current_x:
-        move_x_steps(current_x - new_target_x, False)
+#     if new_target_x > current_x:
+#         move_x_steps(new_target_x - current_x, True)
+#     elif new_target_x < current_x:
+#         move_x_steps(current_x - new_target_x, False)
 
-    current_x = new_target_x
+#     current_x = new_target_x
 
 
-def move_y(new_target_y: int) -> None:
-    '''
-    Move Y axis to a specific target position (in steps),
-    updating current_y accordingly
-    '''
-    global current_y
+# def move_y(new_target_y: int) -> None:
+#     '''
+#     Move Y axis to a specific target position (in steps),
+#     updating current_y accordingly
+#     '''
+#     global current_y
 
-    new_target_y = clamp(new_target_y, Y_MIN, Y_MAX)
+#     new_target_y = clamp(new_target_y, Y_MIN, Y_MAX)
 
-    if new_target_y > current_y:
-        move_y_steps(new_target_y - current_y, True)
-    elif new_target_y < current_y:
-        move_y_steps(current_y - new_target_y, False)
+#     if new_target_y > current_y:
+#         move_y_steps(new_target_y - current_y, True)
+#     elif new_target_y < current_y:
+#         move_y_steps(current_y - new_target_y, False)
 
-    current_y = new_target_y
+#     current_y = new_target_y
 
 
 def step_toward_target() -> bool:
@@ -247,15 +219,16 @@ def step_toward_target() -> bool:
     global current_x, current_y
 
     moved = False
+    enable_motors()
 
     if current_x < target_x:
         set_dir_x(True)
-        pulse_step_pair(step_x1, step_x2)
+        pulse_step(step_x)
         current_x += 1
         moved = True
     elif current_x > target_x:
         set_dir_x(False)
-        pulse_step_pair(step_x1, step_x2)
+        pulse_step(step_x)
         current_x -= 1
         moved = True
 
@@ -284,7 +257,7 @@ def handle_command(line: str) -> None:
     '''
     global target_x, target_y, current_x, current_y
 
-    line = line.strip()
+    line = line.strip().upper()
 
     if not line:
         return
@@ -341,7 +314,6 @@ while True:
                 handle_command(line)
 
     # Move one logical step at a time toward target
-    enable_motors()
     moved = step_toward_target()
 
     if not moved:
