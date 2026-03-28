@@ -47,7 +47,7 @@ Y_MIN = 0
 X_MAX = max_distance(total_axis_dist=500.0, r=2.0, N=200)
 Y_MAX = max_distance(total_axis_dist=750.0, r=2.0, N=200)
 
-INVERT_X_DIR = False
+INVERT_X_DIR = True
 INVERT_Y_DIR = False
 
 current_x = 0
