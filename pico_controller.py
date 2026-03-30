@@ -69,6 +69,16 @@ current_y = 0
 
 # trivial
 def clamp(val: int, low: int, high: int) -> int:
+    '''
+    Function to clamp val to be within low and high (inclusive)
+
+    Args:
+        val (int): value to clamp
+        low (int): minimum allowed value
+        high (int): maximum allowed value
+    Returns:
+        clamped value (int)
+    '''
     return max(low, min(val, high))
 
 def do_steps(step_pin, n):
