@@ -1,3 +1,11 @@
+# =============================================================================
+# simulation_controller.py
+# -----------------------------------------------------------------------------
+# The Pygame controller code for sending movement commands to the microcontroller.
+# This is done via touch-to-move on the Pygame UI simulation, which then translates 
+# into hardware coordinates and sends the command over serial.
+# =============================================================================
+
 import pygame
 import sys
 import math
