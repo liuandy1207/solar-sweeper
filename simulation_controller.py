@@ -41,14 +41,12 @@ Pygame Simulation Setup
 - Hardware mapping through pygame
 '''
 pygame.init()
-pygame.font.init()
 
 WIDTH, HEIGHT = 900, 650
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Simulation + Hardware Mapping")
 
 clock = pygame.time.Clock()
-font = pygame.font.SysFont(None, 28)
 
 # Panel / rail area
 panel_x = 150
@@ -228,8 +226,8 @@ while running:
 
     y_text = 20
     for line in info:
-        surf = font.render(line, True, (20, 20, 20))
-        screen.blit(surf, (20, y_text))
+        # surf = font.render(line, True, (20, 20, 20))
+        # screen.blit(surf, (20, y_text))
         y_text += 30
 
     pygame.display.flip()
