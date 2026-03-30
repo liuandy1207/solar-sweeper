@@ -94,7 +94,14 @@ hardware_X_max, hardware_Y_max = max_distance(r=2, N=200, total_axis_dist=500.0)
 
 def clamp(val: float, low: float, high: float) -> float:
     '''
+    Function to clamp val to be within low and high (inclusive)
 
+    Args:
+        val (int): value to clamp
+        low (int): minimum allowed value
+        high (int): maximum allowed value
+    Returns:
+        clamped value (int)
     '''
     return max(low, min(val, high))
 
