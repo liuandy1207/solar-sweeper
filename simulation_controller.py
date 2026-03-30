@@ -28,7 +28,8 @@ def send_line(text: str):
     '''
     Void function for sending control text to microcontroller via serial connection
     
-    :param text: The control command to send
+    Args:
+        text (string): The control command to send
     '''
     global ser
     if ser:
@@ -74,9 +75,12 @@ def max_distance(total_axis_dist: float, r: float, N: int = 200) -> float:
     Calculate theoretical linear distance for motor movement based on spool radius and steps per revolution
     d = (2 * pi * r) / N
 
-    :param r: Spool radius in mm
-    :param N: Steps per revolution of the motor (200 steps/rev for Mini Nema)
-    :return Linear distance in mm per step
+    Args:
+        total_axis_dist (float): Total linear distance of the (x or y) axis in mm
+        r (int): Spool radius in mm
+        N (int): Steps per revolution of the motor (200 steps/rev for Mini Nema)
+    Returns:
+        Linear distance in mm per step (float)
     '''
     if total_axis_dist is None:
         raise ValueError("total_axis_dist must be provided to calculate max distance")
@@ -99,9 +103,11 @@ def panel_to_hw(px: float, py: float) -> Tuple[int, int]:
     """
     Function to convert carriage center pixel position into hardware coordinates (steps)
 
-    :param px: Pixel x position of carriage center
-    :param py: Pixel y position of carriage center
-    :return: Tuple of (hardware_x, hardware_y) in steps
+    Args:
+        px (float): Pixel x position of carriage center
+        py (float): Pixel y position of carriage center
+    Returns:
+        Tuple of (hardware_x, hardware_y) in steps (Tuple of ints)
     """
     x_min = panel_x + car_w / 2
     x_max = panel_x + panel_w - car_w / 2
@@ -124,9 +130,11 @@ def hw_to_panel(hw_x: float, hw_y: float) -> Tuple[float, float]:
     Function to reverse map hardware coordinates (steps) to panel center position
     - Useful for visualization
 
-    :param hw_x: Hardware x position in steps
-    :param hw_y: Hardware y position in steps
-    :return: Tuple of (pixel_x, pixel_y) for carriage center
+    Args:
+        hw_x (float): Hardware x position in steps
+        hw_y (float): Hardware y position in steps
+    Returns:
+        Tuple of (pixel_x, pixel_y) for carriage center (Tuple of floats)
     '''
     x_min = panel_x + car_w / 2
     x_max = panel_x + panel_w - car_w / 2
