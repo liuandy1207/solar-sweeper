@@ -6,6 +6,7 @@ import digitalio
 import time
 import usb_cdc
 
+# max_distance function from simulation_controller.py. imports from other files doesn't work in CircuitPython
 def max_distance(total_axis_dist: float, r: float, N: int = 200) -> int:
     per_step = (2 * math.pi * r) / N
     return int(total_axis_dist / per_step)
@@ -47,23 +48,43 @@ Y_MIN = 0
 X_MAX = max_distance(total_axis_dist=500.0, r=2.0, N=200)
 Y_MAX = max_distance(total_axis_dist=750.0, r=2.0, N=200)
 
-INVERT_X_DIR = False
+INVERT_X_DIR = True
 INVERT_Y_DIR = False
 
 current_x = 0
 current_y = 0
 
 def clamp(val: int, low: int, high: int) -> int:
+    '''
+    Function to clamp val to be within low and high (inclusive)
+
+    :param val: value to clamp
+    :param low: minimum allowed value
+    :param high: maximum allowed value
+    :return: clamped value
+    '''
     return max(low, min(val, high))
 
-def do_steps(step_pin, n: int):
+def do_steps(step_pin, n: int) -> None:
+    '''
+    Function to pulse the given step pin n times with delay between changes
+
+    :param step_pin: the digitalio pin connected to the step input of the driver
+    :param n: number of steps to pulse
+    '''
     for _ in range(n):
         step_pin.value = True
         time.sleep(STEP_DELAY)
         step_pin.value = False
         time.sleep(STEP_DELAY)
 
-def move_to(new_x: int, new_y: int):
+def move_to(new_x: int, new_y: int) -> None:
+    '''
+    Function to move the carriage to the specified (new_x, new_y) position in hardware coordinates
+
+    :param new_x: target x position in steps
+    :param new_y: target y position in steps
+    '''
     global current_x, current_y
 
     new_x = clamp(new_x, X_MIN, X_MAX)
@@ -95,7 +116,7 @@ def move_to(new_x: int, new_y: int):
     en_y.value = True
 
 # serial
-serial = usb_cdc.data
+serial = usb_cdc.console
 buffer = ""
 
 print("pico motor init")

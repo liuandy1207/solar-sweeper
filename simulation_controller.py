@@ -11,7 +11,7 @@ Serial Settings
 - `send_line` sends the control text to the microcontroller
 '''
 USE_SERIAL = True
-PORT = "/dev/tty.usbmodem1101"
+PORT = "/dev/tty.usbmodem2101"
 BAUD = 115200
 
 ser = None
@@ -91,13 +91,19 @@ def max_distance(total_axis_dist: float, r: float, N: int = 200) -> float:
 hardware_X_max, hardware_Y_max = max_distance(r=2, N=200, total_axis_dist=500.0), max_distance(r=2, N=200, total_axis_dist=750.0)
 
 def clamp(val: float, low: float, high: float) -> float:
+    '''
+
+    '''
     return max(low, min(val, high))
 
 
 def panel_to_hw(px: float, py: float) -> Tuple[int, int]:
     """
-    Convert carriage CENTER pixel position into hardware coordinates (steps).
-    This is for one X axis and one Y axis.
+    Function to convert carriage center pixel position into hardware coordinates (steps)
+
+    :param px: Pixel x position of carriage center
+    :param py: Pixel y position of carriage center
+    :return: Tuple of (hardware_x, hardware_y) in steps
     """
     x_min = panel_x + car_w / 2
     x_max = panel_x + panel_w - car_w / 2
@@ -116,10 +122,14 @@ def panel_to_hw(px: float, py: float) -> Tuple[int, int]:
 
 
 def hw_to_panel(hw_x: float, hw_y: float) -> Tuple[float, float]:
-    """
-    Reverse map hardware coordinates (steps) to panel center position.
-    Useful for visualization.
-    """
+    '''
+    Function to reverse map hardware coordinates (steps) to panel center position
+    - Useful for visualization
+
+    :param hw_x: Hardware x position in steps
+    :param hw_y: Hardware y position in steps
+    :return: Tuple of (pixel_x, pixel_y) for carriage center
+    '''
     x_min = panel_x + car_w / 2
     x_max = panel_x + panel_w - car_w / 2
     y_min = panel_y + car_h / 2
@@ -137,8 +147,8 @@ def hw_to_panel(hw_x: float, hw_y: float) -> Tuple[float, float]:
 
 '''
 Simulation Loop (for pygame)
+- This provides the UI screen for clicking-to-moving from simulation to the physical hardware
 '''
-
 last_target = None
 
 running = True
