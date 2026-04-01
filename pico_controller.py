@@ -128,7 +128,7 @@ def move_to(new_x: int, new_y: int):
         current_y = new_y
 
 
-serial = usb_cdc.data       # open serial channel for inputs
+serial = usb_cdc.console       # open serial channel for inputs
 buffer = ""                 # allows incoming character to accumulate
 
 print("pico motor init")
